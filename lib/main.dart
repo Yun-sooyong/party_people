@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:party_people/home.dart';
-import 'package:party_people/party_light.dart';
+import 'package:party_people/screen/home.dart';
 
 void main() {
   runApp(const MyApp());

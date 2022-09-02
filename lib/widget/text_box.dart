@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:party_people/party_light.dart';
 
 class Box extends StatelessWidget {
   final IconData icon;

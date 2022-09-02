@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter
+  flutter_fortune_wheel: ^1.2.0
   google_fonts: ^3.0.1
   rainbow_color: ^2.0.1
 
