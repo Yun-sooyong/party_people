@@ -11,8 +11,8 @@ class Wheel extends StatefulWidget {
 }
 
 class _WheelState extends State<Wheel> {
-  StreamController<int> _controller = StreamController<int>();
-  TextEditingController _textEditingController = TextEditingController();
+  final StreamController<int> _controller = StreamController<int>();
+  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   void dispose() {
@@ -36,11 +36,12 @@ class _WheelState extends State<Wheel> {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: '항목 추가',
             onPressed: () {
               showDialog(
                   barrierDismissible: true, // 바깥 영역 터치시 다이얼로그 닫기 여부
                   context: context,
-                  builder: (BuildContext buildcontext) {
+                  builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text('항목 추가'),
                       content: SingleChildScrollView(
@@ -61,8 +62,6 @@ class _WheelState extends State<Wheel> {
                               items.add(_textEditingController.text);
                               _textEditingController.text = '';
                               if (items.length > 2) _isNull = false;
-                              print(items);
-                              print(_isNull);
                             });
                             Navigator.of(context).pop();
                           },
@@ -77,42 +76,70 @@ class _WheelState extends State<Wheel> {
                     );
                   });
             },
-            icon: const Icon(Icons.plus_one_rounded),
+            icon: const Icon(Icons.add),
           ),
           IconButton(
+            tooltip: '항목 제거',
             onPressed: () {},
-            icon: const Icon(Icons.compare_arrows),
+            icon: const Icon(Icons.remove),
           )
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Expanded(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width,
               child: FortuneWheel(
+                //physics: PanState(),
+                indicators: const [
+                  FortuneIndicator(
+                      child: TriangleIndicator(
+                        color: Colors.amber,
+                      ),
+                      alignment: Alignment.topCenter)
+                ],
+                animateFirst: false,
+                duration: const Duration(milliseconds: 6000),
                 selected: _controller.stream,
                 items: _isNull
                     ? [
                         // true /
-                        for (var it in items) FortuneItem(child: Text(it)),
+                        for (var it in items)
+                          FortuneItem(
+                            child: Text(it),
+                          ),
                       ]
                     : [
                         // false /
-                        for (var it in items) FortuneItem(child: Text(it)),
+                        for (var it in items)
+                          FortuneItem(
+                            child: Text(it),
+                          ),
                       ],
               ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _controller.add(
-                Fortune.randomInt(0, items.length),
-              );
-            },
-            child: const Text('돌리기'),
-          )
-        ],
+            //Text(PanPhysics().value.toString()),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                fixedSize: const Size(80, 30),
+              ),
+              onPressed: () {
+                //print(PanState().isPanning);
+                const PanState().isPanning == true
+                    ? null
+                    : _controller.add(
+                        Fortune.randomInt(0, items.length),
+                      );
+              },
+              child: const Text('돌리기'),
+            )
+          ],
+        ),
       ),
     );
   }
