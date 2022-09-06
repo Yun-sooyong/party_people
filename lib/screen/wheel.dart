@@ -147,26 +147,30 @@ class _WheelState extends State<Wheel> {
             // 안내문
             ? Center(
                 child: Container(
-                  height: size.height * 0.4,
-                  width: size.width,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      border: Border.all(color: Colors.blueGrey, width: 2),
-                      shape: BoxShape.circle),
-                  child: Center(
-                    child: Text.rich(
-                      TextSpan(
-                        text: '항목을 2개 이상 추가해주세요',
-                        style: const TextStyle(
-                          fontSize: 24,
+                    height: size.height * 0.4,
+                    width: size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        border: Border.all(color: Colors.blueGrey, width: 2),
+                        shape: BoxShape.circle),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '항목을 2개 이상 추가해주세요',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
                         ),
-                        children: [
-                          TextSpan(text: '\n현재: ${items.length}'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          '현재 : ${items.length}',
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ],
+                    )),
               )
             // 본체
             : Column(
@@ -244,7 +248,6 @@ class _WheelState extends State<Wheel> {
                               itemsValue = '';
                             });
                             _streamController.add(
-                              //Fortune.randomInt(0, items.length),
                               randomVar = Fortune.randomInt(0, items.length),
                             );
                           },

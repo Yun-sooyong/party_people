@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:party_people/screen/party_light.dart';
 
 import 'package:party_people/widget/text_box.dart';
 
 import 'package:party_people/screen/dice.dart';
-import 'package:party_people/screen/party_light.dart';
+import 'package:party_people/screen/bubble.dart';
 import 'package:party_people/screen/wheel.dart';
 
 class Home extends StatefulWidget {
