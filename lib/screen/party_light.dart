@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:flutter/services.dart';
 
 class PartyLight extends StatefulWidget {
   const PartyLight({super.key});
@@ -21,19 +22,27 @@ class PartyLight extends StatefulWidget {
   State<PartyLight> createState() => _PartyLightState();
 }
 
-class _PartyLightState extends State<PartyLight> {
-  final TextEditingController _controller = TextEditingController();
+int r = Random().nextInt(226) + 30;
+int g = Random().nextInt(226) + 30;
+int b = Random().nextInt(226) + 30;
+int a = Random().nextInt(226) + 30;
 
-  int r = Random().nextInt(236) + 20;
-  int g = Random().nextInt(236) + 20;
-  int b = Random().nextInt(236) + 20;
-  int a = Random().nextInt(236) + 20;
-  int time = 4;
+List<double> primaryBegin = [Random().nextDouble(), Random().nextDouble()];
+List<double> primaryEnd = [Random().nextDouble(), Random().nextDouble()];
+List<double> secondaryBegin = [Random().nextDouble(), Random().nextDouble()];
+List<double> secondartEnd = [Random().nextDouble(), Random().nextDouble()];
+
+int time = 4;
+
+class _PartyLightState extends State<PartyLight> with TickerProviderStateMixin {
+  final TextEditingController _controller = TextEditingController();
+  late AnimationController _animationController;
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,6 +68,16 @@ class _PartyLightState extends State<PartyLight> {
                             const Text('색이 변하는 시간 (기본값: 4)'),
                             TextField(
                               controller: _controller,
+                              keyboardType: TextInputType.number,
+                              // inputFormatters 를 사용하면 특정 문자만 입력받을 수 있음
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp('[0-9]'),
+                                ),
+                              ],
+                              decoration: const InputDecoration(
+                                hintText: '기본값 4',
+                              ),
                             ),
                           ],
                         ),
@@ -67,18 +86,19 @@ class _PartyLightState extends State<PartyLight> {
                         TextButton(
                           /**
                            * 22.09.06
+                           * 기능 : 애니메이션의 시간을 사용자가 입력한 값으로 지정
                            * 에러 : FormatException: Invalid number (at character 1)
+                           * 원인 : parse 할 controller.text가 빌드 시 null값을 가짐
                            * 해결 : 
                            */
-                          onPressed: int.parse(_controller.text) < 10 &&
-                                  _controller.text != ''
-                              ? null
-                              : () {
-                                  setState(() {
-                                    time = int.parse(_controller.text);
-                                  });
-                                  Navigator.of(context).pop();
-                                },
+                          onPressed: () {
+                            setState(() {
+                              time = int.parse(_controller.text);
+                              _controller.text = '';
+                              //redrawKey = Object();
+                            });
+                            Navigator.of(context).pop();
+                          },
                           child: const Text('확인'),
                         ),
                         TextButton(
@@ -92,13 +112,24 @@ class _PartyLightState extends State<PartyLight> {
                   });
             },
           ),
+          /**
+           * 기능 : icon button을 사용해 애니메이션에 사용된 색을 변경
+           *       가능한 어두운 색이 나오지 않게끔 50 - 236의 사이값으로 생성
+           * 에러 : 에러는 없지만 변경이 되지않음
+           */
           IconButton(
             onPressed: () {
               setState(() {
-                r = Random().nextInt(206) + 50;
-                g = Random().nextInt(206) + 50;
-                b = Random().nextInt(206) + 50;
-                a = Random().nextInt(206) + 50;
+                r = Random().nextInt(206) + 30;
+                g = Random().nextInt(206) + 30;
+                b = Random().nextInt(206) + 30;
+                a = Random().nextInt(206) + 30;
+                //redrawKey = Object();
+
+                primaryBegin = [Random().nextDouble(), Random().nextDouble()];
+                primaryEnd = [Random().nextDouble(), Random().nextDouble()];
+                secondaryBegin = [Random().nextDouble(), Random().nextDouble()];
+                secondartEnd = [Random().nextDouble(), Random().nextDouble()];
               });
             },
             icon: const Icon(Icons.repeat),
@@ -116,21 +147,28 @@ class _PartyLightState extends State<PartyLight> {
              * AnimateGradient 가 Container 의 shape 에 영향을 받지않아 
              * ClipRRect를 사용해 원형을 잡음 
              * 하지만 스마트폰 사이즈에서 원형을 잡아 다른 기기나 회전시 모양이 망가짐
-             * TODO 가로사이즈가 길어질경우 width 의 값을 조정해 원형을 유지하며 크기를 키움
+             * //TODO 가로사이즈가 길어질경우 width 의 값을 조정해 원형을 유지하며 크기를 키움
+             * 
+             * 에러1 : AnimateGradient 는 리빌드가 안되는것 같음
+             * 해결1 : AnimateGradient 리빌드가 되지 않아 key에 UniqeKey()를 사용해 AnimateGradient의 State를 리빌드 함
+             * 에러2 : Ticker Error [_AnimateGradientState created a Ticker via its TickerProviderStateMixin, but at the time dispose() was called on the mixin, that Ticker was still active. All Tickers must be disposed before calling super.dispose().]
+             * 해결2 : TickerProviderStateMix 추가, AnimationController 를 사용해 직접 AnimateGradient에 추가
+             
              */
             child: ClipRRect(
               borderRadius: BorderRadius.circular(300),
               child: AnimateGradient(
-                // 컬러 부위를 랜덤으로 처리
-                /**
-                 * [필요한 랜덤값]
-                 * color 4~6 / alignment / duration
-                 */
-                duration: const Duration(seconds: 4),
-                primaryEnd: Alignment.bottomCenter,
-                primaryBegin: Alignment.centerLeft,
-                secondaryBegin: Alignment.centerRight,
-                secondaryEnd: Alignment.topCenter,
+                controller: _animationController = AnimationController(
+                  vsync: this,
+                  duration: Duration(seconds: time),
+                )..repeat(reverse: true),
+                key: UniqueKey(),
+                duration: Duration(seconds: time),
+                // TODO Begin, End user input or random
+                primaryBegin: Alignment(primaryBegin[0], primaryBegin[1]),
+                primaryEnd: Alignment(primaryEnd[0], primaryEnd[1]),
+                secondaryBegin: Alignment(secondaryBegin[0], secondartEnd[1]),
+                secondaryEnd: Alignment(secondartEnd[0], secondartEnd[1]),
                 primaryColors: [
                   Color.fromRGBO(r, g, b, 1),
                   Color.fromRGBO(b, r, g, 1),
